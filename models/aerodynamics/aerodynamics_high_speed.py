@@ -37,8 +37,6 @@ class AerodynamicsHighSpeed(om.Group):
     models.
     """
 
-Modified by Roberto
-
     def setup(self):
         self.add_subsystem(
             "compute_oswald_coeff",
