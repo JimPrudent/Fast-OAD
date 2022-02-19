@@ -34,6 +34,9 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         self.add_input("data:aerodynamics:aircraft:landing:mach", val=np.nan)
         self.add_output("data:aerodynamics:blown_wing_aero:landing:CL")
         self.add_output("data:aerodynamics:blown_wing_aero:landing:CD")
+        
+    def setup_partials(self):
+        self.declare_partials("*", "*", method="fd")
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
         mach = inputs["data:aerodynamics:aircraft:landing:mach"]
