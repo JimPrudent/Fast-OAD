@@ -48,8 +48,8 @@ data:aerodynamics:high_lift_devices:landing:CD || increment of CD due to high-li
 data:aerodynamics:high_lift_devices:landing:CL || increment of CL due to high-lift devices for landing phase
 data:aerodynamics:high_lift_devices:takeoff:CD || increment of CD due to high-lift devices for takeoff phase
 data:aerodynamics:high_lift_devices:takeoff:CL || increment of CL due to high-lift devices for takeoff phase
-data:aerodynamics:high_lift_devices:landing:CL || increment of CL due to blown wing service
-data:aerodynamics:high_lift_devices:landing:CD || increment of CD due to blown wing service
+data:aerodynamics:blown_wing_aero:CL || increment of CL due to blown wing service
+data:aerodynamics:blown_wing_aero:CD || increment of CD due to blown wing service
 data:aerodynamics:horizontal_tail:cruise:CD0 || profile drag coefficient for horizontal tail in cruise conditions
 data:aerodynamics:horizontal_tail:cruise:CL_alpha || derivative of lift coefficient of horizontal tail with respect to local angle of attack in cruise conditions
 data:aerodynamics:horizontal_tail:low_speed:CD0 || profile drag coefficient for horizontal tail in low speed conditions

@@ -31,14 +31,14 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         self.options.declare("landing_flag", default=False, types=bool)
 
     def setup(self):
-        self.add_input("data:aerodynamics:aircraft:landing:mach", val=np.nan)
-        self.add_output("data:aerodynamics:blown_wing_aero:landing:CL")
-        self.add_output("data:aerodynamics:blown_wing_aero:landing:CD")
-        
+        self.add_input("data:geometry:wing:sweep_0", val=np.nan, units="rad")
+        self.add_output("data:aerodynamics:blown_wing_aero:CL")
+        self.add_output("data:aerodynamics:blown_wing_aero:CD")
+
     def setup_partials(self):
         self.declare_partials("*", "*", method="fd")
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
-        mach = inputs["data:aerodynamics:aircraft:landing:mach"]
-        outputs["data:aerodynamics:blown_wing_aero:landing:CL"] = mach*0. # Just a test, it's not true
-        outputs["data:aerodynamics:blown_wing_aero:landing:CD"] = mach*0. # Just a test, it's not true
+        sweeps0 = inputs["data:geometry:wing:sweep_0"]
+        outputs["data:aerodynamics:blown_wing_aero:CL"] = sweeps0*0. # Just a test, it's not true
+        outputs["data:aerodynamics:blown_wing_aero:CD"] = sweeps0*0. # Just a test, it's not true

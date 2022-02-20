@@ -31,8 +31,8 @@ class ComputePolar(om.ExplicitComponent):
         self.add_input("tuning:aerodynamics:aircraft:cruise:CD:offset", val=np.nan)
         self.add_input("tuning:aerodynamics:aircraft:cruise:CD:winglet_effect:k", val=np.nan)
         self.add_input("tuning:aerodynamics:aircraft:cruise:CD:winglet_effect:offset", val=np.nan)
-        self.add_input("data:aerodynamics:blown_wing_aero:landing:CL")
-        self.add_input("data:aerodynamics:blown_wing_aero:landing:CD")
+        self.add_input("data:aerodynamics:blown_wing_aero:CL", val=np.nan)
+        self.add_input("data:aerodynamics:blown_wing_aero:CD", val=np.nan)
 
         if self.options["polar_type"] != PolarType.HIGH_SPEED:
             self.add_input(
@@ -115,8 +115,8 @@ class ComputePolar(om.ExplicitComponent):
         offset_cd = inputs["tuning:aerodynamics:aircraft:cruise:CD:offset"]
         k_winglet_cd = inputs["tuning:aerodynamics:aircraft:cruise:CD:winglet_effect:k"]
         offset_winglet_cd = inputs["tuning:aerodynamics:aircraft:cruise:CD:winglet_effect:offset"]
-        delta_cl_bw = inputs["data:aerodynamics:blown_wing_aero:landing:CL"]
-        delta_cd_bw = inputs["data:aerodynamics:blown_wing_aero:landing:CD"]
+        delta_cl_bw = inputs["data:aerodynamics:blown_wing_aero:CL"]
+        delta_cd_bw = inputs["data:aerodynamics:blown_wing_aero:CD"]
         
         if self.options["polar_type"] != PolarType.HIGH_SPEED:
             cl = inputs["data:aerodynamics:aircraft:low_speed:CL"]
