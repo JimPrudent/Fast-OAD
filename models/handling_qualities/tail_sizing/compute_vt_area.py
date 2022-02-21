@@ -37,6 +37,10 @@ class ComputeVTArea(om.ExplicitComponent):
         self.add_input(
             "data:geometry:vertical_tail:MAC:at25percent:x:from_wingMAC25", val=np.nan, units="m"
         )
+        self.add_input("data:mission:sizing:main_route:cruise:altitude", val=np.nan, units="m")
+        self.add_input("data:geometry:propulsion:engine:count", val=np.nan)
+        self.add_input("data:propulsion:MTO_thrust", val=np.nan, units="N")
+        self.add_input("data:geometry:propulsion:nacelle:y", val=np.nan, units="m")
 
         self.add_output("data:geometry:vertical_tail:wetted_area", units="m**2", ref=100.0)
         self.add_output("data:geometry:vertical_tail:area", units="m**2", ref=50.0)
