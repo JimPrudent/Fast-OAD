@@ -45,6 +45,7 @@ class ComputeVTArea(om.ExplicitComponent):
         self.add_output("data:geometry:vertical_tail:wetted_area", units="m**2", ref=100.0)
         self.add_output("data:geometry:vertical_tail:area", units="m**2", ref=50.0)
         self.add_output("data:aerodynamics:vertical_tail:cruise:CnBeta", units="m**2")
+        self.add_output("data:aerodynamics:vertical_tail:cruise:CnBeta_mot", units="m**2")
 
     def setup_partials(self):
         self.declare_partials("data:geometry:vertical_tail:wetted_area", "*", method="fd")
@@ -63,11 +64,22 @@ class ComputeVTArea(om.ExplicitComponent):
         cruise_mach = inputs["data:TLAR:cruise_mach"]
         # This one is the distance between the 25% MAC points
         wing_htp_distance = inputs["data:geometry:vertical_tail:MAC:at25percent:x:from_wingMAC25"]
+        altitude = inputs["data:mission:sizing:main_route:cruise:altitude"]
+        n_engines = inputs["data:geometry:propulsion:engine:count"]
+        thrust_sl = inputs["data:propulsion:MTO_thrust"]
+        y1 = inputs["data:geometry:propulsion:nacelle:y"]
 
         # Matches suggested goal by Raymer, Fig 16.20
         cn_beta_goal = 0.0569 - 0.01694 * cruise_mach + 0.15904 * cruise_mach ** 2
 
-        required_cnbeta_vtp = cn_beta_goal - cn_beta_fuselage
+        atm = Atmosphere(altitude)
+        speed = cruise_mach * atm.speed_of_sound
+        rho = atm.density
+        # dynamic pressure
+        q = 0.5 * rho * speed**2 * wing_area * l0_wing
+        # Cn_beta produced by distributed propulsion
+        cn_beta_prop = y1 * (n_engines/2) * thrust_sl/q
+        required_cnbeta_vtp = cn_beta_goal - cn_beta_fuselage - cn_beta_prop
         distance_to_cg = wing_htp_distance + 0.25 * l0_wing - cg_mac_position * l0_wing
         vt_area = required_cnbeta_vtp / (distance_to_cg / wing_area / span * cl_alpha_vt)
         wet_vt_area = 2.1 * vt_area
@@ -75,3 +87,4 @@ class ComputeVTArea(om.ExplicitComponent):
         outputs["data:geometry:vertical_tail:wetted_area"] = wet_vt_area
         outputs["data:geometry:vertical_tail:area"] = vt_area
         outputs["data:aerodynamics:vertical_tail:cruise:CnBeta"] = required_cnbeta_vtp
+        outputs["data:aerodynamics:vertical_tail:cruise:CnBeta_mot"] = cn_beta_prop
