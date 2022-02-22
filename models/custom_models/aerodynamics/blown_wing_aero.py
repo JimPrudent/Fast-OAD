@@ -16,12 +16,13 @@ Computation of lift and drag increments due to blown wing service
 
 import numpy as np
 import openmdao.api as om
+from fastoad.module_management.constants import ModelDomain
+from fastoad.module_management.service_registry import RegisterOpenMDAOSystem, RegisterSubmodel
+# from ..constants import SERVICE_BLOWN_WING_AERO
 
-from fastoad.module_management.service_registry import RegisterSubmodel
-from ..constants import SERVICE_BLOWN_WING_AERO
 
-
-@RegisterSubmodel(SERVICE_BLOWN_WING_AERO, "fastoad.submodel.aerodynamics.blown_wing_aero.legacy")
+@RegisterOpenMDAOSystem("fastoad.custom_models.aerodynamics.blown_wing_aero.legacy", domain=ModelDomain.AERODYNAMICS)
+# HAVE TO BE A SUBMODEL
 class ComputeDeltaBlownWing(om.ExplicitComponent):
     """
     Provides lift and drag increments due to blown wing effect
@@ -40,5 +41,5 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
         span_ratio = inputs["data:geometry:flap:span_ratio"]
-        outputs["data:aerodynamics:blown_wing_aero:CL"] = 2. # Just a test, it's not true
-        outputs["data:aerodynamics:blown_wing_aero:CD"] = 2. # Just a test, it's not true
+        outputs["data:aerodynamics:blown_wing_aero:CL"] = span_ratio * 2. # Just a test, it's not true
+        outputs["data:aerodynamics:blown_wing_aero:CD"] = span_ratio * 2. # Just a test, it's not true

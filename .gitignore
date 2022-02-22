@@ -118,3 +118,7 @@ models/aerodynamics/components/utils/__pycache__/
 models/performances/mission/mission_definition/resources/__pycache__/
 
 models/performances/mission/openmdao/resources/__pycache__/
+
+models/custom_models/aerodynamics/__pycache__/
+
+notebooks/01_tutorial/01_tutorial.ipynb
