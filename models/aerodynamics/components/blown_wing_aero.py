@@ -18,20 +18,20 @@ import numpy as np
 import openmdao.api as om
 
 from fastoad.module_management.service_registry import RegisterSubmodel
-from ..constants import SERVICE_BLOWN_WING
+from ..constants import SERVICE_BLOWN_WING_AERO
 
 
-@RegisterSubmodel(SERVICE_BLOWN_WING, "fastoad.submodel.aerodynamics.blown_wing.legacy")
+@RegisterSubmodel(SERVICE_BLOWN_WING_AERO, "fastoad.submodel.aerodynamics.blown_wing_aero.legacy")
 class ComputeDeltaBlownWing(om.ExplicitComponent):
     """
-    Provides lift and drag increments due to blown wing service
+    Provides lift and drag increments due to blown wing effect
     """
 
     def initialize(self):
         self.options.declare("landing_flag", default=False, types=bool)
 
     def setup(self):
-        self.add_input("data:geometry:wing:sweep_0", val=np.nan, units="rad")
+        self.add_input("data:geometry:flap:span_ratio", val=np.nan)
         self.add_output("data:aerodynamics:blown_wing_aero:CL")
         self.add_output("data:aerodynamics:blown_wing_aero:CD")
 
@@ -39,6 +39,6 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         self.declare_partials("*", "*", method="fd")
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
-        sweeps0 = inputs["data:geometry:wing:sweep_0"]
-        outputs["data:aerodynamics:blown_wing_aero:CL"] = sweeps0*0. # Just a test, it's not true
-        outputs["data:aerodynamics:blown_wing_aero:CD"] = sweeps0*0. # Just a test, it's not true
+        span_ratio = inputs["data:geometry:flap:span_ratio"]
+        outputs["data:aerodynamics:blown_wing_aero:CL"] = 2. # Just a test, it's not true
+        outputs["data:aerodynamics:blown_wing_aero:CD"] = 2. # Just a test, it's not true
