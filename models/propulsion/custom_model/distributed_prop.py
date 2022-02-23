@@ -45,7 +45,6 @@ class PROP_DISTRIB(om.ExplicitComponent):
     def setup(self):
         self.add_input("tuning:propeller:beta_pro", val=np.nan)
         self.add_input("data:propulsion:MTO_thrust", val=np.nan, units="N")
-        self.add_input("data:mission:sizing:main_route:cruise:altitude", val=np.nan, units="m")
         self.add_input("tuning:propeller:count", val=np.nan)
         self.add_input("data:geometry:wing:span", val=np.nan, units="m")
 
@@ -61,17 +60,17 @@ class PROP_DISTRIB(om.ExplicitComponent):
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
         beta_pro = inputs["tuning:propeller:beta_pro"]
         MTO = inputs["data:propulsion:MTO_thrust"]
-        alt = inputs["data:mission:sizing:main_route:cruise:altitude"]
         n_prop = inputs["tuning:propeller:count"]
         wing_span = inputs["data:geometry:wing:span"]
 
         # Sizing at take-off
-        cruise_mach = 0.3
+        takeoff_mach = 0.3
+        alt = 0
         C_t = (4.27e-02 + 1.44e-01 * beta_pro)  # Thrust coef with T=C_T.rho.n^2.D^4 - 0.8 for de-rating of APC catalog
         C_p = -1.48e-03 + 9.72e-02 * beta_pro  # Power coef with P=C_p.rho.n^3.D^5
         # Propeller selection with take-off scenario
         atm = Atmosphere(alt)
-        speed_0 = cruise_mach * atm.speed_of_sound
+        speed_0 = takeoff_mach * atm.speed_of_sound
         rho = atm.density
         T_prop = MTO/n_prop
         ND_max = 0.7 * atm.speed_of_sound
