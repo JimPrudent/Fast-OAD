@@ -16,6 +16,7 @@ Estimation of vertical tail area
 
 import numpy as np
 import openmdao.api as om
+from fastoad.model_base import Atmosphere
 
 
 class ComputeVTArea(om.ExplicitComponent):
