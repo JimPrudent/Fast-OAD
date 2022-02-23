@@ -21,6 +21,8 @@ from fastoad.module_management.constants import ModelDomain
 from fastoad.module_management.service_registry import RegisterOpenMDAOSystem
 from fastoad.model_base import Atmosphere
 
+from .exceptions import FastDistrPropulsionError
+
 
 @RegisterOpenMDAOSystem(
     "MYfastoad.propulsion.prop_distr", domain=ModelDomain.PROPULSION,
@@ -45,6 +47,7 @@ class PROP_DISTRIB(om.ExplicitComponent):
         self.add_input("data:propulsion:MTO_thrust", val=np.nan, units="N")
         self.add_input("data:mission:sizing:main_route:cruise:altitude", val=np.nan, units="m")
         self.add_input("tuning:propeller:count", val=np.nan)
+        self.add_input("data:geometry:wing:span", val=np.nan, units="m")
 
         self.add_output("data:geometry:propulsion:propeller:diameter", units="m")
         self.add_output("data:propulsion:propeller:thrust_prop", units="N")
@@ -60,6 +63,7 @@ class PROP_DISTRIB(om.ExplicitComponent):
         MTO = inputs["data:propulsion:MTO_thrust"]
         alt = inputs["data:mission:sizing:main_route:cruise:altitude"]
         n_prop = inputs["tuning:propeller:count"]
+        wing_span = inputs["data:geometry:wing:span"]
 
         # Sizing at take-off
         cruise_mach = 0.3
@@ -79,6 +83,13 @@ class PROP_DISTRIB(om.ExplicitComponent):
         Area_disk = np.pi * (D_pro/2)**2
         Speed_ejec = np.sqrt(2 * T_prop /(rho*Area_disk) + speed_0**2)
         Speed_disk = 0.5*(Speed_ejec + speed_0)
+
+        # Error if span propellers bigger than wing_span
+        span_pro = D_pro * n_prop/2 * 1.1
+        if span_pro > (wing_span/2):
+                raise FastDistrPropulsionError(
+                    "Error: there is no enough space for propellers on the wing."
+                )
 
         outputs["data:geometry:propulsion:propeller:diameter"] = D_pro
         outputs["data:propulsion:propeller:thrust_prop"] = T_prop
