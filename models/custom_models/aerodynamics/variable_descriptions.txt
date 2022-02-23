@@ -50,6 +50,12 @@ data:aerodynamics:high_lift_devices:takeoff:CD || increment of CD due to high-li
 data:aerodynamics:high_lift_devices:takeoff:CL || increment of CL due to high-lift devices for takeoff phase
 data:aerodynamics:blown_wing_aero:CL || increment of CL due to blown wing effect
 data:aerodynamics:blown_wing_aero:CD || increment of CD due to blown wing effect
+data:aerodynamics:blown_wing_aero:delta_mass_flow || mass flow (only the added contribution of the distributed propulsion on wings) providing by all engines
+data:aerodynamics:blown_wing_aero:air_speed_s || the air speed in streamtubes on wing
+data:aerodynamics:blown_wing_aero:delta_lift_s || the contribution in lift (streamtube and added contribution only)
+data:aerodynamics:blown_wing_aero:delta_drag_s || the contribution in drag (streamtube and added contribution only)
+data:aerodynamics:blown_wing_aero:wet_area_wing_s || wetted area (streamtube and added contribution only)
+data:aerodynamics:blown_wing_aero:air_force_s || air force in the propellers streamtube
 data:aerodynamics:horizontal_tail:cruise:CD0 || profile drag coefficient for horizontal tail in cruise conditions
 data:aerodynamics:horizontal_tail:cruise:CL_alpha || derivative of lift coefficient of horizontal tail with respect to local angle of attack in cruise conditions
 data:aerodynamics:horizontal_tail:low_speed:CD0 || profile drag coefficient for horizontal tail in low speed conditions

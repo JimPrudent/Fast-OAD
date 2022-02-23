@@ -122,3 +122,7 @@ models/performances/mission/openmdao/resources/__pycache__/
 models/custom_models/aerodynamics/__pycache__/
 
 notebooks/01_tutorial/01_tutorial.ipynb
+
+models/custom_models/__pycache__/
+
+*.ipynb

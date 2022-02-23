@@ -31,8 +31,6 @@ class ComputePolar(om.ExplicitComponent):
         self.add_input("tuning:aerodynamics:aircraft:cruise:CD:offset", val=np.nan)
         self.add_input("tuning:aerodynamics:aircraft:cruise:CD:winglet_effect:k", val=np.nan)
         self.add_input("tuning:aerodynamics:aircraft:cruise:CD:winglet_effect:offset", val=np.nan)
-        self.add_input("data:aerodynamics:blown_wing_aero:CL", val=np.nan)
-        self.add_input("data:aerodynamics:blown_wing_aero:CD", val=np.nan)
 
         if self.options["polar_type"] != PolarType.HIGH_SPEED:
             self.add_input(
@@ -51,6 +49,8 @@ class ComputePolar(om.ExplicitComponent):
             if self.options["polar_type"] == PolarType.TAKEOFF:
                 self.add_input("data:aerodynamics:high_lift_devices:takeoff:CL", val=np.nan)
                 self.add_input("data:aerodynamics:high_lift_devices:takeoff:CD", val=np.nan)
+                self.add_input("data:aerodynamics:blown_wing_aero:CL", val=np.nan)
+                self.add_input("data:aerodynamics:blown_wing_aero:CD", val=np.nan)
                 self.add_output(
                     "data:aerodynamics:aircraft:takeoff:CL",
                     copy_shape="data:aerodynamics:aircraft:low_speed:CL",
@@ -115,8 +115,7 @@ class ComputePolar(om.ExplicitComponent):
         offset_cd = inputs["tuning:aerodynamics:aircraft:cruise:CD:offset"]
         k_winglet_cd = inputs["tuning:aerodynamics:aircraft:cruise:CD:winglet_effect:k"]
         offset_winglet_cd = inputs["tuning:aerodynamics:aircraft:cruise:CD:winglet_effect:offset"]
-        delta_cl_bw = inputs["data:aerodynamics:blown_wing_aero:CL"]
-        delta_cd_bw = inputs["data:aerodynamics:blown_wing_aero:CD"]
+
         
         if self.options["polar_type"] != PolarType.HIGH_SPEED:
             cl = inputs["data:aerodynamics:aircraft:low_speed:CL"]
@@ -127,12 +126,18 @@ class ComputePolar(om.ExplicitComponent):
             if self.options["polar_type"] == PolarType.TAKEOFF:
                 delta_cl_hl = inputs["data:aerodynamics:high_lift_devices:takeoff:CL"]
                 delta_cd_hl = inputs["data:aerodynamics:high_lift_devices:takeoff:CD"]
+                delta_cl_bw = inputs["data:aerodynamics:blown_wing_aero:CL"]
+                delta_cd_bw = inputs["data:aerodynamics:blown_wing_aero:CD"]
             elif self.options["polar_type"] == PolarType.LANDING:
                 delta_cl_hl = inputs["data:aerodynamics:high_lift_devices:landing:CL"]
                 delta_cd_hl = inputs["data:aerodynamics:high_lift_devices:landing:CD"]
+                delta_cl_bw = 0.0
+                delta_cd_bw = 0.0
             elif self.options["polar_type"] == PolarType.LOW_SPEED:
                 delta_cl_hl = 0.0
                 delta_cd_hl = 0.0
+                delta_cl_bw = 0.0
+                delta_cd_bw = 0.0
             else:
                 raise AttributeError(f'Unknown polar type: {self.options["polar_type"]}')
 
@@ -144,6 +149,8 @@ class ComputePolar(om.ExplicitComponent):
             coef_k = inputs["data:aerodynamics:aircraft:cruise:induced_drag_coefficient"]
             delta_cl_hl = 0.0
             delta_cd_hl = 0.0
+            delta_cl_bw = 0.0
+            delta_cd_bw = 0.0
         else:
             raise AttributeError(f'Unknown polar type: {self.options["polar_type"]}')
 
