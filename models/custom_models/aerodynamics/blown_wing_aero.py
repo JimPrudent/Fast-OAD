@@ -71,13 +71,11 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         # thrust_prop = inputs["data:propulsion:propeller:thrust_prop"]
         # prop_diameter = inputs["data:geometry:propulsion:propeller:diameter"]
 
-        s_pf = wing_area - 2 * l2_wing * y2_wing
-        wet_area_wing = 2 * (wing_area - width_max * l2_wing)
         speed_ejected = 1000.
         thrust_prop = 82000.
         prop_diameter = 2.
 
-        k_factor = 0.0006 * thrust_prop * n_engines # Randomly choosen for instance
+        k_factor = 0.000000004 * thrust_prop * n_engines # Randomly choosen for instance
         angle_streamtubes = np.pi / 12. # Randomly choosen for instance
 
         # Compute true airspeed and air density
@@ -87,13 +85,13 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         rho = atm.density
 
         # Compute mass flow (only the added contribution of the distributed propulsion on wings) providing by all engines
-        delta_mass_flow = n_engines *  rho * ( speed_ejected  - speed_0 ) * prop_diameter ** 2 / 4.
+        delta_mass_flow = n_engines * rho * (speed_ejected - speed_0) * prop_diameter ** 2 / 4.
 
         # Compute the air speed in streamtubes on wing
-        air_speed_s = (1 - k_factor) * speed_ejected
+        air_speed_s = (1. - k_factor) * speed_ejected
 
         # Compute the contribution in lift (streamtube and added contribution only)
-        delta_lift_s = delta_mass_flow * ( air_speed_s * np.cos(angle_streamtubes) - speed_0 )
+        delta_lift_s = delta_mass_flow * (air_speed_s * np.cos(angle_streamtubes) - speed_0)
 
         # Compute the contribution in drag (streamtube and added contribution only)
         delta_drag_s = delta_mass_flow * air_speed_s * np.sin(angle_streamtubes)
