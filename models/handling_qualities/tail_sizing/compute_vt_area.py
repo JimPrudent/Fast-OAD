@@ -45,8 +45,8 @@ class ComputeVTArea(om.ExplicitComponent):
 
         self.add_output("data:geometry:vertical_tail:wetted_area", units="m**2", ref=100.0)
         self.add_output("data:geometry:vertical_tail:area", units="m**2", ref=50.0)
-        self.add_output("data:aerodynamics:vertical_tail:cruise:CnBeta", units="m**2")
-        self.add_output("data:aerodynamics:vertical_tail:cruise:CnBeta_mot", units="m**2")
+        self.add_output("data:aerodynamics:vertical_tail:cruise:CnBeta")
+        self.add_output("data:aerodynamics:vertical_tail:cruise:CnBeta_mot")
 
     def setup_partials(self):
         self.declare_partials("data:geometry:vertical_tail:wetted_area", "*", method="fd")
