@@ -41,7 +41,7 @@ class ComputeVTArea(om.ExplicitComponent):
         self.add_input("data:mission:sizing:main_route:cruise:altitude", val=np.nan, units="m")
         self.add_input("data:geometry:propulsion:engine:count", val=np.nan)
         self.add_input("data:propulsion:MTO_thrust", val=np.nan, units="N")
-        self.add_input("data:geometry:propulsion:nacelle:y", val=np.nan, units="m")
+        self.add_input("data:geometry:propulsion:propeller:y1", val=np.nan, units="m")
 
         self.add_output("data:geometry:vertical_tail:wetted_area", units="m**2", ref=100.0)
         self.add_output("data:geometry:vertical_tail:area", units="m**2", ref=50.0)
@@ -52,6 +52,7 @@ class ComputeVTArea(om.ExplicitComponent):
         self.declare_partials("data:geometry:vertical_tail:wetted_area", "*", method="fd")
         self.declare_partials("data:geometry:vertical_tail:area", "*", method="fd")
         self.declare_partials("data:aerodynamics:vertical_tail:cruise:CnBeta", "*", method="fd")
+        self.declare_partials("data:aerodynamics:vertical_tail:cruise:CnBeta_mot", "*", method="fd")
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
         # pylint: disable=too-many-locals  # needed for clarity
@@ -68,7 +69,7 @@ class ComputeVTArea(om.ExplicitComponent):
         altitude = inputs["data:mission:sizing:main_route:cruise:altitude"]
         n_engines = inputs["data:geometry:propulsion:engine:count"]
         thrust_sl = inputs["data:propulsion:MTO_thrust"]
-        y1 = inputs["data:geometry:propulsion:nacelle:y"]
+        y1 = inputs["data:geometry:propulsion:propeller:y1"]
 
         # Matches suggested goal by Raymer, Fig 16.20
         cn_beta_goal = 0.0569 - 0.01694 * cruise_mach + 0.15904 * cruise_mach ** 2
