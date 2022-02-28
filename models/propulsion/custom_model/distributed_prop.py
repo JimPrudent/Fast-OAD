@@ -85,7 +85,7 @@ class PROP_DISTRIB(om.ExplicitComponent):
         Area_disk = np.pi * (D_pro/2)**2
         Speed_ejec = np.sqrt(2 * T_prop /(rho*Area_disk) + speed_0**2)
         Speed_disk = 0.5*(Speed_ejec + speed_0)
-        y1_prop = b_f/2 + 0.1 * D_pro
+        y1_prop = b_f/2 + 0.5 * D_pro * 1.1
 
         # Error if span propellers bigger than wing_span
         span_pro = y1_prop + D_pro * n_prop/2 * 1.1

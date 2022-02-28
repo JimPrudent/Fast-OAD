@@ -459,7 +459,8 @@ tuning:weight:systems:power:hydraulic_systems:mass:offset || power (C1): correct
 tuning:weight:systems:transmission:mass:k || transmission (C4): correction ratio to be applied on computed mass
 tuning:weight:systems:transmission:mass:offset || transmission (C4): correction offset to be applied on computed mass
 # Here we start listing the new variables
-data:aerodynamics:vertical_tail:cruise:CnBeta_mot || Cn_beta produced by distributed propulsion
+data:aerodynamics:vertical_tail:cruise:CnBeta_mot || derivative of yawing moment against sideslip angle for differential thrust in cruise conditions
+data:aerodynamics:vertical_tail:cruise:CnBeta_goal || goal derivative of yawing moment against sideslip angle for the aircraft stability in cruise conditions
 tuning:propeller:count || Electrical propellers number for distributed propulsion
 tuning:propeller:beta_pro || Pitch to diameter ratio for propeller sizing
 data:geometry:propulsion:propeller:diameter || Diameter of each propeller
@@ -467,3 +468,4 @@ data:propulsion:propeller:thrust_prop || Thrust for each propeller
 data:aerodynamics:propulsion:propeller:speed_ejected || Ejected speed after the propeller
 data:aerodynamics:propulsion:propeller:speed_disk || Airspeed at the disk of the propeller
 data:propulsion:propeller:power_tot || Power needed to move all the propellers
+data:geometry:propulsion:propeller:y1 || Position of the first propeller
