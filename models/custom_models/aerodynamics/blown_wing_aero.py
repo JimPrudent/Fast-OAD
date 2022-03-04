@@ -26,7 +26,8 @@ from fastoad.module_management.service_registry import RegisterOpenMDAOSystem, R
 # HAVE TO BE A SUBMODEL
 class ComputeDeltaBlownWing(om.ExplicitComponent):
     """
-    Provides lift and drag increments due to blown wing effect
+    Provides lift and drag increments due to blown wing effect.
+    Simplified theoretical model based on the ESDU 88031 model (cf. Thauvin Thesis - appendix C)
     """
 
     def initialize(self):
@@ -48,12 +49,13 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         self.add_output("data:aerodynamics:blown_wing_aero:CD")
 
         # Check variables :
-        self.add_output("data:aerodynamics:blown_wing_aero:delta_mass_flow")
-        self.add_output("data:aerodynamics:blown_wing_aero:air_speed_s")
-        self.add_output("data:aerodynamics:blown_wing_aero:delta_lift_s")
-        self.add_output("data:aerodynamics:blown_wing_aero:delta_drag_s")
-        self.add_output("data:aerodynamics:blown_wing_aero:wet_area_wing_s")
-        self.add_output("data:aerodynamics:blown_wing_aero:air_force_s")
+        self.add_output("data:aerodynamics:blown_wing_aero:delta_mass_flow", units="kg/m**3")
+        self.add_output("data:aerodynamics:blown_wing_aero:air_speed_s", units="m/s")
+        self.add_output("data:aerodynamics:blown_wing_aero:delta_lift_s", units="N")
+        self.add_output("data:aerodynamics:blown_wing_aero:delta_drag_s", units="N")
+        self.add_output("data:aerodynamics:blown_wing_aero:wet_area_wing_s", units="m**2")
+        self.add_output("data:aerodynamics:blown_wing_aero:air_force_s", units="N")
+        self.add_output("data:aerodynamics:blown_wing_aero:bool_version")
 
     def setup_partials(self):
         self.declare_partials("*", "*", method="fd")
@@ -71,11 +73,11 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         # thrust_prop = inputs["data:propulsion:propeller:thrust_prop"]
         # prop_diameter = inputs["data:geometry:propulsion:propeller:diameter"]
 
-        speed_ejected = 1000.
-        thrust_prop = 82000.
-        prop_diameter = 2.
+        speed_ejected = 100.
+        thrust_prop = 40000.
+        prop_diameter = 2.172
 
-        k_factor = 0.000000004 * thrust_prop * n_engines # Randomly choosen for instance
+        k_factor = 4e-6 * thrust_prop * n_engines # Randomly choosen for instance
         angle_streamtubes = np.pi / 12. # Randomly choosen for instance
 
         # Compute true airspeed and air density
@@ -90,10 +92,8 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         # Compute the air speed in streamtubes on wing
         air_speed_s = (1. - k_factor) * speed_ejected
 
-        # Compute the contribution in lift (streamtube and added contribution only)
+        # Compute the contribution in lift and drag (streamtube and added contribution only)
         delta_lift_s = delta_mass_flow * (air_speed_s * np.cos(angle_streamtubes) - speed_0)
-
-        # Compute the contribution in drag (streamtube and added contribution only)
         delta_drag_s = delta_mass_flow * air_speed_s * np.sin(angle_streamtubes)
 
         # Compute wetted area (streamtube and added contribution only)
@@ -113,3 +113,4 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         outputs["data:aerodynamics:blown_wing_aero:delta_drag_s"] = delta_drag_s
         outputs["data:aerodynamics:blown_wing_aero:wet_area_wing_s"] = wet_area_wing_s
         outputs["data:aerodynamics:blown_wing_aero:air_force_s"] = air_force_s
+        outputs["data:aerodynamics:blown_wing_aero:bool_version"] = 1
