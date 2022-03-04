@@ -49,6 +49,17 @@ class ComputePolar(om.ExplicitComponent):
             if self.options["polar_type"] == PolarType.TAKEOFF:
                 self.add_input("data:aerodynamics:high_lift_devices:takeoff:CL", val=np.nan)
                 self.add_input("data:aerodynamics:high_lift_devices:takeoff:CD", val=np.nan)
+                self.add_input("data:aerodynamics:blown_wing_aero:CL", val=np.nan)
+                self.add_input("data:aerodynamics:blown_wing_aero:CD", val=np.nan)
+                self.add_input("data:aerodynamics:blown_wing_aero:bool_version", val=np.nan)
+                self.add_output(
+                    "data:aerodynamics:blown_wing_aero:CL_V2",
+                    copy_shape="data:aerodynamics:aircraft:low_speed:CL",
+                )  # check
+                self.add_output(
+                    "data:aerodynamics:blown_wing_aero:CD_V2",
+                    copy_shape="data:aerodynamics:aircraft:low_speed:CL",
+                )  # check
                 self.add_output(
                     "data:aerodynamics:aircraft:takeoff:CL",
                     copy_shape="data:aerodynamics:aircraft:low_speed:CL",
@@ -113,6 +124,8 @@ class ComputePolar(om.ExplicitComponent):
         offset_cd = inputs["tuning:aerodynamics:aircraft:cruise:CD:offset"]
         k_winglet_cd = inputs["tuning:aerodynamics:aircraft:cruise:CD:winglet_effect:k"]
         offset_winglet_cd = inputs["tuning:aerodynamics:aircraft:cruise:CD:winglet_effect:offset"]
+
+        
         if self.options["polar_type"] != PolarType.HIGH_SPEED:
             cl = inputs["data:aerodynamics:aircraft:low_speed:CL"]
             cd0 = inputs["data:aerodynamics:aircraft:low_speed:CD0"]
@@ -122,12 +135,20 @@ class ComputePolar(om.ExplicitComponent):
             if self.options["polar_type"] == PolarType.TAKEOFF:
                 delta_cl_hl = inputs["data:aerodynamics:high_lift_devices:takeoff:CL"]
                 delta_cd_hl = inputs["data:aerodynamics:high_lift_devices:takeoff:CD"]
+                bool_version = inputs["data:aerodynamics:blown_wing_aero:bool_version"]
+                if bool_version > 0 : # Version 1 : Theoric model
+                    delta_cl_bw = inputs["data:aerodynamics:blown_wing_aero:CL"]
+                    delta_cd_bw = inputs["data:aerodynamics:blown_wing_aero:CD"]
             elif self.options["polar_type"] == PolarType.LANDING:
                 delta_cl_hl = inputs["data:aerodynamics:high_lift_devices:landing:CL"]
                 delta_cd_hl = inputs["data:aerodynamics:high_lift_devices:landing:CD"]
+                delta_cl_bw = 0.0
+                delta_cd_bw = 0.0
             elif self.options["polar_type"] == PolarType.LOW_SPEED:
                 delta_cl_hl = 0.0
                 delta_cd_hl = 0.0
+                delta_cl_bw = 0.0
+                delta_cd_bw = 0.0
             else:
                 raise AttributeError(f'Unknown polar type: {self.options["polar_type"]}')
 
@@ -139,6 +160,8 @@ class ComputePolar(om.ExplicitComponent):
             coef_k = inputs["data:aerodynamics:aircraft:cruise:induced_drag_coefficient"]
             delta_cl_hl = 0.0
             delta_cd_hl = 0.0
+            delta_cl_bw = 0.0
+            delta_cd_bw = 0.0
         else:
             raise AttributeError(f'Unknown polar type: {self.options["polar_type"]}')
 
@@ -147,11 +170,28 @@ class ComputePolar(om.ExplicitComponent):
             cd0 + cd_c + cd_trim + coef_k * cl ** 2 * k_winglet_cd + offset_winglet_cd + delta_cd_hl
         ) * k_cd + offset_cd
 
+        if self.options["polar_type"] == PolarType.TAKEOFF:
+            if bool_version > 0 :
+                cl = cl + delta_cl_bw
+                cd = cd + delta_cd_bw * k_cd
+            else:
+                delta_cl_bw, delta_cd_bw = blown_wing_aero_v2(cl, cd)
+                cl = cl + delta_cl_bw
+                cd = cd + delta_cd_bw * k_cd
+
         if self.options["polar_type"] == PolarType.LOW_SPEED:
             outputs["data:aerodynamics:aircraft:low_speed:CD"] = cd
         elif self.options["polar_type"] == PolarType.TAKEOFF:
             outputs["data:aerodynamics:aircraft:takeoff:CL"] = cl
             outputs["data:aerodynamics:aircraft:takeoff:CD"] = cd
+
+            # Check
+            if bool_version > 0:
+                outputs["data:aerodynamics:blown_wing_aero:CL_V2"] = cl
+                outputs["data:aerodynamics:blown_wing_aero:CD_V2"] = cd
+            else:
+                outputs["data:aerodynamics:blown_wing_aero:CL_V2"] = delta_cl_bw
+                outputs["data:aerodynamics:blown_wing_aero:CD_V2"] = delta_cd_bw
         elif self.options["polar_type"] == PolarType.LANDING:
             outputs["data:aerodynamics:aircraft:landing:CL"] = cl
             outputs["data:aerodynamics:aircraft:landing:CD"] = cd
@@ -172,3 +212,10 @@ def get_optimum_ClCd(ClCd):
     optimum_Cd = ClCd[0][optimum_index]
 
     return optimum_Cz, optimum_Cd
+
+def blown_wing_aero_v2(cl,cd):
+    """ Compute the increment in lift and drag
+    VERSION 2 Blown Wing Aero : Model based on data"""
+    delta_cl = cl * 0.1
+    delta_cd = cd * 0.1
+    return delta_cl, delta_cd
