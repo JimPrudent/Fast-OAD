@@ -34,7 +34,7 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         self.options.declare("landing_flag", default=False, types=bool)
 
     def setup(self):
-        self.add_input("data:geometry:propulsion:engine:count", val=np.nan)
+        self.add_input("tuning:propeller:count", val=np.nan)
         self.add_input("data:geometry:wing:span", val=np.nan, units="m")
         self.add_input("data:geometry:wing:area", val=np.nan, units="m**2")
         self.add_input("data:geometry:wing:root:chord", val=np.nan, units="m")
@@ -55,13 +55,12 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         self.add_output("data:aerodynamics:blown_wing_aero:delta_drag_s", units="N")
         self.add_output("data:aerodynamics:blown_wing_aero:wet_area_wing_s", units="m**2")
         self.add_output("data:aerodynamics:blown_wing_aero:air_force_s", units="N")
-        self.add_output("data:aerodynamics:blown_wing_aero:bool_version")
 
     def setup_partials(self):
         self.declare_partials("*", "*", method="fd")
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
-        n_engines = inputs["data:geometry:propulsion:engine:count"]
+        n_engines = inputs["tuning:propeller:count"]
         wing_area = inputs["data:geometry:wing:area"]
         l2_wing = inputs["data:geometry:wing:root:chord"]
         y2_wing = inputs["data:geometry:wing:root:y"]
@@ -73,8 +72,8 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         thrust_prop = inputs["data:propulsion:propeller:thrust_prop"]
         prop_diameter = inputs["data:geometry:propulsion:propeller:diameter"]
 
-        k_factor = 4e-6 * thrust_prop * n_engines # Randomly choosen for instance
-        angle_streamtubes = np.pi / 12. # Randomly choosen for instance
+        k_factor = 0.35364 # Must be dependant of thrust_prop and n_engines
+        angle_streamtubes = np.pi / 100. # Randomly choosen for instance
 
         # Compute true airspeed and air density
         alt = 0.
@@ -93,11 +92,13 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         delta_drag_s = delta_mass_flow * air_speed_s * np.sin(angle_streamtubes)
 
         # Compute wetted area (streamtube and added contribution only)
-        wet_area_wing = 2 * (wing_area - width_max * l2_wing)
-        wet_area_wing_s = (wet_area_wing * prop_diameter / (2 * span) * n_engines)
+        wet_area_wing = (wing_area - width_max * l2_wing)
+        wet_area_wing_s = (wet_area_wing * (prop_diameter * n_engines) / span)
 
         # Compute air force in the propellers streamtube
-        air_force_s = rho * air_speed_s ** 2 * wet_area_wing_s
+        air_force_s = rho * air_speed_s ** 2 * wet_area_wing_s * 2
+        delta_lift_s = 0.
+        delta_drag_s = 0.
 
         outputs["data:aerodynamics:blown_wing_aero:CL"] = delta_lift_s / air_force_s
         outputs["data:aerodynamics:blown_wing_aero:CD"] = delta_drag_s / air_force_s
@@ -109,4 +110,3 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         outputs["data:aerodynamics:blown_wing_aero:delta_drag_s"] = delta_drag_s
         outputs["data:aerodynamics:blown_wing_aero:wet_area_wing_s"] = wet_area_wing_s
         outputs["data:aerodynamics:blown_wing_aero:air_force_s"] = air_force_s
-        outputs["data:aerodynamics:blown_wing_aero:bool_version"] = 1

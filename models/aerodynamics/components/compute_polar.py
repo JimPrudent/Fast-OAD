@@ -51,7 +51,7 @@ class ComputePolar(om.ExplicitComponent):
                 self.add_input("data:aerodynamics:high_lift_devices:takeoff:CD", val=np.nan)
                 self.add_input("data:aerodynamics:blown_wing_aero:CL", val=np.nan)
                 self.add_input("data:aerodynamics:blown_wing_aero:CD", val=np.nan)
-                self.add_input("data:aerodynamics:blown_wing_aero:bool_version", val=np.nan)
+                self.add_input("data:aerodynamics:blown_wing_aero:bool_version", val=1)
                 self.add_output(
                     "data:aerodynamics:blown_wing_aero:CL_V2",
                     copy_shape="data:aerodynamics:aircraft:low_speed:CL",
@@ -216,6 +216,6 @@ def get_optimum_ClCd(ClCd):
 def blown_wing_aero_v2(cl,cd):
     """ Compute the increment in lift and drag
     VERSION 2 Blown Wing Aero : Model based on data"""
-    delta_cl = cl * 0.1
-    delta_cd = cd * 0.1
+    delta_cl = cl * 0.04
+    delta_cd = - cd * 0.01
     return delta_cl, delta_cd
