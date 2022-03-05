@@ -72,8 +72,8 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
         thrust_prop = inputs["data:propulsion:propeller:thrust_prop"]
         prop_diameter = inputs["data:geometry:propulsion:propeller:diameter"]
 
-        k_factor = 0.35364 # Must be dependant of thrust_prop and n_engines
-        angle_streamtubes = np.pi / 100. # Randomly choosen for instance
+        k_factor = 0 # Must be dependant of thrust_prop and n_engines
+        angle_streamtubes = np.pi / 500. # Randomly choosen for instance
 
         # Compute true airspeed and air density
         alt = 0.
