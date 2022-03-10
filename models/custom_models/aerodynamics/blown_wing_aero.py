@@ -97,8 +97,6 @@ class ComputeDeltaBlownWing(om.ExplicitComponent):
 
         # Compute air force in the propellers streamtube
         air_force_s = rho * air_speed_s ** 2 * wet_area_wing_s * 2
-        delta_lift_s = 0.
-        delta_drag_s = 0.
 
         outputs["data:aerodynamics:blown_wing_aero:CL"] = delta_lift_s / air_force_s
         outputs["data:aerodynamics:blown_wing_aero:CD"] = delta_drag_s / air_force_s
